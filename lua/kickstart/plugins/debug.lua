@@ -33,11 +33,19 @@ return {
       { '<leader>dt', dap_go.debug_test, desc = 'Debug test: Start/Continue' },
       { '<leader>dc', dap.continue, desc = 'Debug: Start/Continue' },
       { '<leader>di', dap.step_into, desc = 'Debug: Step Into' },
-      { '<leader>do', dap.step_over, desc = 'Debug: Step Over' },
+      { '<A-j>', dap.step_over, desc = 'Debug: Step Over' },
       { '<leader>du', dap.step_out, desc = 'Debug: Step Out' },
-      { '<leader>b', dap.toggle_breakpoint, desc = 'Debug: Toggle Breakpoint' },
+      { '<leader>dk', dap.terminate, desc = 'Debug: Terminate' },
       {
-        '<leader>B',
+        '<leader>dr',
+        function()
+          dapui.open { reset = true }
+        end,
+        desc = 'Debug: Reset View',
+      },
+      { '<leader>db', dap.toggle_breakpoint, desc = 'Debug: Toggle Breakpoint' },
+      {
+        '<leader>dB',
         function()
           dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
         end,
@@ -69,6 +77,14 @@ return {
       },
     }
 
+    -- Install golang specific config
+    require('dap-go').setup {
+      delve = {
+        -- On Windows delve must be run attached or it crashes.
+        -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
+        detached = vim.fn.has 'win32' == 0,
+      },
+    }
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
     dapui.setup {
@@ -94,14 +110,5 @@ return {
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
-
-    -- Install golang specific config
-    require('dap-go').setup {
-      delve = {
-        -- On Windows delve must be run attached or it crashes.
-        -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
-        detached = vim.fn.has 'win32' == 0,
-      },
-    }
   end,
 }
